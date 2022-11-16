@@ -47,9 +47,6 @@ func main() {
 				log.Fatal(err)
 			}
 
-			//headLine := ""
-			//bottomLine := ""
-			//elementMaxLen := 22
 			maxFreeSpaceInEl := 18
 			freeSpaceInEl := maxFreeSpaceInEl
 			elementTemplate := "| "
@@ -73,19 +70,19 @@ func main() {
 							ouptutElement += " |"
 							fmt.Println(ouptutElement)
 						}
-
-						/*for l := 0; l < elementMaxLen; l++ {
-							bottomLine += "_"
-						}
-
-						fmt.Println(bottomLine)*/
 						break
 					}
 
 					if freeSpaceInEl == 0 {
 						ouptutElement += " |"
 						fmt.Println(ouptutElement)
-						ouptutElement = elementTemplate
+						ouptutElement = ""
+
+						for f := 0; f < i*elementMaxLen; f++ {
+							ouptutElement += " "
+						}
+
+						ouptutElement += elementTemplate
 						freeSpaceInEl = maxFreeSpaceInEl
 					}
 					ouptutElement += string(pulledElement[k])
@@ -93,7 +90,6 @@ func main() {
 
 			}
 		}
-		//return
 	}
 
 	bottomLine := ""
