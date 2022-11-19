@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -13,7 +14,7 @@ import (
 func main() {
 
 	filepath := os.Args[1]
-	//strQuantityToParse := os.Args[2]
+	numOfStringsToParse := os.Args[2]
 
 	file, err := os.Open(filepath)
 
@@ -29,29 +30,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	width := consoleSize()
-	elementMaxLen := width / len(pulledHeader)
-	drawALine(width)
-	//fmt.Println("\n")
-	i := 0
-	for i < 6 {
+	terminalWidth := consoleSize()
+	cellMaxLen := terminalWidth / len(pulledHeader)
+	cellCapacity := cellMaxLen - 4
+	drawALine(terminalWidth)
 
-		renderBlockEmptyLine(len(pulledHeader), elementMaxLen-4)
-
-		drawALine(width)
-		fmt.Println("\n")
-		i++
-	}
-	drawALine(width)
-
-	/*headLine := ""
-
-	for h := 0; h < len(pulledHeader)*elementMaxLen; h++ {
-		headLine += "_"
-	}
-	fmt.Println(headLine)*/
-
-	/*if strQuantityToParse == "all" {
+	if numOfStringsToParse == "all" {
 		for {
 			record, err := reader.Read()
 
@@ -63,10 +47,10 @@ func main() {
 				log.Fatal(err)
 			}
 
-			maxFreeSpaceInEl := 18
-			freeSpaceInEl := maxFreeSpaceInEl
-			elementTemplate := "| "
-			ouptutElement := elementTemplate
+			renderString(record, cellCapacity)
+			//freeSpaceInEl := maxFreeSpaceInEl
+			//elementTemplate := "| "
+			//ouptutElement := elementTemplate
 
 			for i := 0; i < len(record); i++ {
 				pulledElement := record[i]
@@ -105,18 +89,9 @@ func main() {
 				}
 
 			}
+
 		}
 	}
-
-	bottomLine := ""
-
-	for x := 0; x < len(pulledHeader)*elementMaxLen; x++ {
-		bottomLine += "_"
-	}
-	fmt.Println(bottomLine)
-	width := consoleSize()
-	drawALine(width)*/
-
 	return
 }
 
@@ -144,7 +119,7 @@ func consoleSize() int {
 	return /*heigth,*/ width
 }
 
-func drawALine(terminalWidth int) {
+func renderLine(terminalWidth int) {
 	line := ""
 	for i := 0; i < terminalWidth; i++ {
 		line += "_"
@@ -153,12 +128,45 @@ func drawALine(terminalWidth int) {
 	return
 }
 
-func renderBlockEmptyLine(numOfCells int, symbolsInCell int) {
-	line := ""
-	for i := 0; i < numOfCells; i++ {
-		line += "| "
-		for j := 0; j < symbolsInCell; j++ {
-			line += " "
+func renderString(elements []string, cellCapacity int) {
+	globalLine := ""
+	lineTemplate := "| "
+	substringsCollection := []string{}
+
+	for i := 0; i < len(elements); i++ {
+
+		pushFlag := 0
+		element := elements[i]
+		substringsInCell := 0
+		line := lineTemplate
+		freeSpaceInCell := cellCapacity
+
+		for j := 0; j < len(element); j++ {
+
+			if freeSpaceInCell == 0 {
+
+				if len(substringsCollection) == 0 || substringsInCell > len(substringsCollection) {
+					pushFlag = 1
+					globalLine += line
+					substringsInCell++
+					line = lineTemplate
+					freeSpaceInCell := cellCapacity
+					line += string(element[j])
+					freeSpaceInCell--
+					continue
+				} else if len(substringsCollection) != 0 && substringsInCell <= len(substringsCollection) {
+					pushFlag = 1
+					globalLine += line
+					line = substringsCollection[substringsInCell]
+					freeSpaceInCell := cellCapacity
+					line += string(element[j])
+					freeSpaceInCell--
+					continue
+				}
+			}
+
+			line += string(element[j]) //!!!BASIC CASE!!!
+			freeSpaceInCell--          //!!!BASIC CASE!!!
 		}
 		line += " |"
 	}
