@@ -33,7 +33,7 @@ func main() {
 	terminalWidth := consoleSize()
 	cellMaxLen := terminalWidth / len(pulledHeader)
 	cellCapacity := cellMaxLen - 4
-	drawALine(terminalWidth)
+	renderLine(terminalWidth)
 
 	if numOfStringsToParse == "all" {
 		for {
@@ -48,47 +48,6 @@ func main() {
 			}
 
 			renderString(record, cellCapacity)
-			//freeSpaceInEl := maxFreeSpaceInEl
-			//elementTemplate := "| "
-			//ouptutElement := elementTemplate
-
-			for i := 0; i < len(record); i++ {
-				pulledElement := record[i]
-				for k := 0; k < len(record[i]); k++ {
-
-					if k == len(pulledElement)-1 && freeSpaceInEl > 0 {
-						ouptutElement += string(pulledElement[k])
-						freeSpaceInEl--
-
-						if freeSpaceInEl == 0 {
-							ouptutElement += " |"
-							fmt.Println(ouptutElement)
-						} else {
-							for j := 0; j < freeSpaceInEl; j++ {
-								ouptutElement += " "
-							}
-							ouptutElement += " |"
-							fmt.Println(ouptutElement)
-						}
-						break
-					}
-
-					if freeSpaceInEl == 0 {
-						ouptutElement += " |"
-						fmt.Println(ouptutElement)
-						ouptutElement = ""
-
-						for f := 0; f < i*elementMaxLen; f++ {
-							ouptutElement += " "
-						}
-
-						ouptutElement += elementTemplate
-						freeSpaceInEl = maxFreeSpaceInEl
-					}
-					ouptutElement += string(pulledElement[k])
-				}
-
-			}
 
 		}
 	}
@@ -147,28 +106,41 @@ func renderString(elements []string, cellCapacity int) {
 
 				if len(substringsCollection) == 0 || substringsInCell > len(substringsCollection) {
 					pushFlag = 1
+					line += " |"
 					globalLine += line
 					substringsInCell++
 					line = lineTemplate
 					freeSpaceInCell := cellCapacity
 					line += string(element[j])
 					freeSpaceInCell--
-					continue
 				} else if len(substringsCollection) != 0 && substringsInCell <= len(substringsCollection) {
 					pushFlag = 1
+					line += " |"
 					globalLine += line
 					line = substringsCollection[substringsInCell]
 					freeSpaceInCell := cellCapacity
 					line += string(element[j])
 					freeSpaceInCell--
-					continue
 				}
 			}
 
-			line += string(element[j]) //!!!BASIC CASE!!!
-			freeSpaceInCell--          //!!!BASIC CASE!!!
+			line += string(element[j])
+			freeSpaceInCell--
+
+			if j == len(element)-1 {
+				for g := 0; g < freeSpaceInCell; g++ {
+					line += " "
+				}
+				line += " |"
+				if pushFlag == 1 {
+					substringsCollection[substringsInCell] = line
+				} else {
+					globalLine += line
+					//fmt.Println(globalLine)
+				}
+			}
 		}
-		line += " |"
 	}
-	fmt.Println(line)
+	fmt.Println(globalLine)
+	fmt.Println(substringsCollection)
 }
