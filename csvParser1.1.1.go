@@ -34,6 +34,7 @@ func main() {
 	cellMaxLen := terminalWidth / len(pulledHeader)
 	cellCapacity := cellMaxLen - 4
 	renderLine(terminalWidth)
+	renderString(pulledHeader, cellCapacity)
 
 	if numOfStringsToParse == "all" {
 		for {
@@ -87,14 +88,23 @@ func renderLine(terminalWidth int) {
 	return
 }
 
+func renderEmptyCell(cellCapacity int) string {
+	cell := "| "
+	for x := 0; x < cellCapacity; x++ {
+		cell += " "
+	}
+	cell += " |"
+	return cell
+}
+
 func renderString(elements []string, cellCapacity int) {
 	globalLine := ""
 	lineTemplate := "| "
 	substringsCollection := []string{}
 
 	for i := 0; i < len(elements); i++ {
-		pushFlag := 0
-		insertFlag := 0
+		//pushFlag := 0
+		//insertFlag := 0
 		element := elements[i]
 		substringsInCell := 0
 		line := lineTemplate
@@ -105,42 +115,49 @@ func renderString(elements []string, cellCapacity int) {
 			if freeSpaceInCell == 0 {
 
 				if len(substringsCollection) == 0 || substringsInCell > len(substringsCollection) {
-					pushFlag = 1
+					//pushFlag = 1
 					line += " |"
 					globalLine += line
 					substringsInCell++
+					substringsCollection = append(substringsCollection, line)
 					line = lineTemplate
 					freeSpaceInCell := cellCapacity
 					line += string(element[j])
 					freeSpaceInCell--
 				} else if len(substringsCollection) != 0 && substringsInCell <= len(substringsCollection) {
-					insertFlag = 1
+					//insertFlag = 1
 					line += " |"
 					globalLine += line
 					line = substringsCollection[substringsInCell]
+					if len(substringsCollection) < i {
+						for b := 0; b < (i-1)-len(substringsCollection); b++ {
+							emptyCell := renderEmptyCell(cellCapacity)
+							line += emptyCell
+						}
+					}
+					line += "| "
 					freeSpaceInCell := cellCapacity
 					line += string(element[j])
 					freeSpaceInCell--
 				}
 			}
-
 			line += string(element[j])
 			freeSpaceInCell--
-
-			if j == (len(element) - 1) {
-				for g := 0; g < freeSpaceInCell; g++ {
-					line += " "
-				}
-				line += " |"
-				if pushFlag == 1 {
-					substringsCollection = append(substringsCollection, line)
-				} else if insertFlag == 1 {
-					substringsCollection[substringsInCell] = line
-				} else {
-					globalLine += line
-				}
-			}
 		}
+
+		/*if j == (len(element) - 1) {
+			for g := 0; g < freeSpaceInCell; g++ {
+				line += " "
+			}
+			line += " |"
+			if pushFlag == 1 {
+				substringsCollection = append(substringsCollection, line)
+			} else if insertFlag == 1 {
+				substringsCollection[substringsInCell] = line
+			} else {
+				globalLine += line
+			}
+		}*/
 	}
 	fmt.Println(globalLine)
 
@@ -149,4 +166,5 @@ func renderString(elements []string, cellCapacity int) {
 			fmt.Println(substringsCollection[i])
 		}
 	}
+
 }
