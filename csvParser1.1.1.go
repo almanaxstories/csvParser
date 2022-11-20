@@ -93,8 +93,8 @@ func renderString(elements []string, cellCapacity int) {
 	substringsCollection := []string{}
 
 	for i := 0; i < len(elements); i++ {
-
 		pushFlag := 0
+		insertFlag := 0
 		element := elements[i]
 		substringsInCell := 0
 		line := lineTemplate
@@ -114,7 +114,7 @@ func renderString(elements []string, cellCapacity int) {
 					line += string(element[j])
 					freeSpaceInCell--
 				} else if len(substringsCollection) != 0 && substringsInCell <= len(substringsCollection) {
-					pushFlag = 1
+					insertFlag = 1
 					line += " |"
 					globalLine += line
 					line = substringsCollection[substringsInCell]
@@ -127,20 +127,26 @@ func renderString(elements []string, cellCapacity int) {
 			line += string(element[j])
 			freeSpaceInCell--
 
-			if j == len(element)-1 {
+			if j == (len(element) - 1) {
 				for g := 0; g < freeSpaceInCell; g++ {
 					line += " "
 				}
 				line += " |"
 				if pushFlag == 1 {
+					substringsCollection = append(substringsCollection, line)
+				} else if insertFlag == 1 {
 					substringsCollection[substringsInCell] = line
 				} else {
 					globalLine += line
-					//fmt.Println(globalLine)
 				}
 			}
 		}
 	}
 	fmt.Println(globalLine)
-	fmt.Println(substringsCollection)
+
+	if len(substringsCollection) != 0 {
+		for i := 0; i < len(substringsCollection); i++ {
+			fmt.Println(substringsCollection[i])
+		}
+	}
 }
