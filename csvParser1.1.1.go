@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"os/exec"
 	"strconv"
@@ -31,10 +32,17 @@ func main() {
 	}
 
 	terminalWidth := consoleSize()
-	cellMaxLen := terminalWidth / len(pulledHeader)
-	cellCapacity := cellMaxLen - 4
+	cellCapacity := terminalWidth/len(pulledHeader) - 4
+	freeSpaceInCell := cellCapacity
 	renderLine(terminalWidth)
-	renderString(pulledHeader, cellCapacity)
+	theLargestElSize := calculateTheLargestElementSize(filepath)
+	sizeOfStrArr := 0
+	if theLargestElSize/cellCapacity < 1 {
+		sizeOfStrArr = 1
+	} else {
+		sizeOfStrArr = int(math.Round(float64(theLargestElSize) / float64(cellCapacity)))
+	}
+	//renderString(pulledHeader, cellCapacity)
 
 	if numOfStringsToParse == "all" {
 		for {
@@ -48,7 +56,21 @@ func main() {
 				log.Fatal(err)
 			}
 
-			renderString(record, cellCapacity)
+			strings := initStrArr(sizeOfStrArr)
+
+			for _, element := range record {
+				cells := initStrArr(sizeOfStrArr)
+				currentSubstrCounter := 0
+				for i := 0; i < len(element); i++ {
+					if freeSpaceInCell == 0 {
+						currentSubstrCounter++
+						freeSpaceInCell = cellCap
+					}
+					cells[currentSubstrCounter] += string(cells[i]) //basic action
+					freeSpaceInCell--                               //basic action
+				}
+				//for _, item := range
+			}
 
 		}
 	}
@@ -97,7 +119,7 @@ func renderEmptyCell(cellCapacity int) string {
 	return cell
 }
 
-func renderString(elements []string, cellCapacity int) {
+func renderStringOldVers(elements []string, cellCapacity int) {
 	globalLine := ""
 	lineTemplate := "| "
 	substringsCollection := []string{}
@@ -130,7 +152,7 @@ func renderString(elements []string, cellCapacity int) {
 					globalLine += line
 					line = substringsCollection[substringsInCell]
 					if len(substringsCollection) < i {
-						for b := 0; b < (i-1)-len(substringsCollection); b++ {
+						for b := 0; b < i-1-len(substringsCollection); b++ {
 							emptyCell := renderEmptyCell(cellCapacity)
 							line += emptyCell
 						}
@@ -166,5 +188,60 @@ func renderString(elements []string, cellCapacity int) {
 			fmt.Println(substringsCollection[i])
 		}
 	}
+	return
+}
 
+/*func (parsedString []string) int {
+
+	for _, item := range parsedString {
+
+	}
+	return sizeOTheLargest
+}*/
+
+func calculateTheLargestElementSize(filepath string) int {
+	file, err := os.Open(filepath)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	sizeOTheLargest := 0
+	reader := csv.NewReader(file)
+	for {
+		record, err := reader.Read()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, element := range record {
+			if len(element) > sizeOTheLargest {
+				sizeOTheLargest = len(element)
+			}
+		}
+	}
+	return sizeOTheLargest
+}
+
+func initStrArr(size int) []string {
+	arr := []string{}
+	for i := 0; i < size; i++ {
+		arr = append(arr, "| ")
+	}
+	return arr
+}
+
+func fillStr(str string, cellCap int) string {
+	if len(str) < cellCap {
+		for i := len(str); i < cellCap; i++ {
+			str += " "
+		}
+	}
+	str += " |"
+	return str
 }
