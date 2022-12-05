@@ -57,7 +57,7 @@ func main() {
 				log.Fatal(err)
 			}
 
-			cellCapacity := terminalWidth/len(record) - 4
+			cellCapacity := (terminalWidth / len(record)) - 4
 			numOfStringsPerRecord := maxStringsPerRecord(record, cellCapacity)
 			strings := initGlobalArr(numOfStringsPerRecord)
 			renderLine(terminalWidth)
@@ -91,6 +91,44 @@ func main() {
 			//fmt.Println(strings)
 			renderString(strings)
 			renderLine(terminalWidth)
+		}
+	} else {
+		counter := 0
+		for {
+			record, err := reader.Read()
+
+			if err == io.EOF {
+				break
+			}
+
+			if err != nil {
+				log.Fatal(err)
+			}
+			//counter := 0
+			strNumToParse, err := strconv.Atoi(numOfStringsToParse)
+
+			if err != nil {
+				fmt.Println(`Your argument can be only an existing number of string to parse or "all" to parse the whole document`)
+				break
+			}
+
+			if counter == 0 || counter == strNumToParse {
+				cellCapacity := (terminalWidth / len(record)) - 4
+				numOfStringsPerRecord := maxStringsPerRecord(record, cellCapacity)
+				strings := initGlobalArr(numOfStringsPerRecord)
+				renderLine(terminalWidth)
+
+				for _, item := range record {
+					emptyCell := renderEmptyCell(cellCapacity)
+					cell := fillStrings(renderBlock(item, cellCapacity), cellCapacity)
+					makeOneFromTwoV2(strings, cell, emptyCell)
+				}
+
+				renderString(strings)
+				renderLine(terminalWidth)
+			}
+
+			counter++
 		}
 	}
 	return
