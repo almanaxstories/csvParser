@@ -1,9 +1,9 @@
-This software is still in the stage of development, so you can run it only in a test mode. 
+This software is in test stage. 
 
-First of all, you need to build the app with "go build csvParserV1.1.1.go".
+Run the parser with two arguments - first is the path to your CSV-file, second is a string "all" to parse the whole file
 
-Then run the binary file with two arguments - the first is the path to your CSV-file,the second is "all" and commands to parse the whole file.
+or type an existing number of string to parse.
 
-For example you can parse the CSV-file, which included in this package by: "./csvParserV1.1.1 ./theCSV.csv all"
+For example you can parse the whole  CSV-file, which included in this package, by: "go run csvParserV1.1.2.go ./theCSV.csv all"
 
 Please send us your review and commentaries!
