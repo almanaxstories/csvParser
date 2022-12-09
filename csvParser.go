@@ -143,8 +143,14 @@ func maxStringsPerRecord(parsedString []string, cellCapacity int) int {
 			sizeOTheLargestElement = len(element)
 		}
 	}
-	stringsPerRecord := int(math.Round(float64(sizeOTheLargestElement) / float64(cellCapacity)))
-	return stringsPerRecord
+	//stringsPerRecord := int(math.Round(float64(sizeOTheLargestElement) / float64(cellCapacity)))
+	//stringsPerRecord := float64(sizeOTheLargestElement) / float64(cellCapacity)
+	stringsPerRecord := float64(sizeOTheLargestElement) / float64(cellCapacity)
+	if math.Remainder(stringsPerRecord, 1) > 0 {
+		stringsPerRecord = math.Floor(stringsPerRecord)
+		stringsPerRecord++
+	}
+	return int(stringsPerRecord)
 }
 
 func initGlobalArr(size int) []string {
