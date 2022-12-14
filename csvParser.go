@@ -25,7 +25,7 @@ func main() {
 
 	reader := csv.NewReader(file)
 
-	terminalWidth := consoleSize()
+	OriginalTerminalWidth := consoleSize()
 
 	if numOfStringsToParse == "all" {
 		for {
@@ -39,15 +39,16 @@ func main() {
 				log.Fatal(err)
 			}
 
-			cellCapacity := (terminalWidth / len(record)) - 4
+			cellCapacity := (OriginalTerminalWidth / len(record)) - 4
+			terminalWidth := calcDynamicTerminalWidth(cellCapacity+4, len(record))
 			numOfStringsPerRecord := maxStringsPerRecord(record, cellCapacity)
-			strings := initGlobalArr(numOfStringsPerRecord)
+			strings := makeASlice(numOfStringsPerRecord)
 			renderLine(terminalWidth)
 
 			for _, item := range record {
 				emptyCell := renderEmptyCell(cellCapacity)
-				cell := fillStrings(renderBlock(item, cellCapacity), cellCapacity)
-				makeOneFromTwoV2(strings, cell, emptyCell)
+				block := makeABlock(sliceAString(item, cellCapacity), cellCapacity)
+				mergeArrays(strings, block, emptyCell)
 			}
 			renderString(strings)
 			renderLine(terminalWidth)
@@ -73,15 +74,16 @@ func main() {
 			}
 
 			if counter == 0 || counter == strNumToParse {
-				cellCapacity := (terminalWidth / len(record)) - 4
+				cellCapacity := (OriginalTerminalWidth / len(record)) - 4
+				terminalWidth := calcDynamicTerminalWidth(cellCapacity+4, len(record))
 				numOfStringsPerRecord := maxStringsPerRecord(record, cellCapacity)
-				strings := initGlobalArr(numOfStringsPerRecord)
+				strings := makeASlice(numOfStringsPerRecord)
 				renderLine(terminalWidth)
 
 				for _, item := range record {
 					emptyCell := renderEmptyCell(cellCapacity)
-					cell := fillStrings(renderBlock(item, cellCapacity), cellCapacity)
-					makeOneFromTwoV2(strings, cell, emptyCell)
+					block := makeABlock(sliceAString(item, cellCapacity), cellCapacity)
+					mergeArrays(strings, block, emptyCell)
 				}
 
 				renderString(strings)
@@ -121,7 +123,7 @@ func consoleSize() int {
 func renderLine(terminalWidth int) {
 	line := ""
 	for i := 0; i < terminalWidth; i++ {
-		line += "_"
+		line += "-"
 	}
 	fmt.Println(line)
 	return
@@ -143,17 +145,11 @@ func maxStringsPerRecord(parsedString []string, cellCapacity int) int {
 			sizeOTheLargestElement = len(element)
 		}
 	}
-	//stringsPerRecord := int(math.Round(float64(sizeOTheLargestElement) / float64(cellCapacity)))
-	//stringsPerRecord := float64(sizeOTheLargestElement) / float64(cellCapacity)
-	stringsPerRecord := float64(sizeOTheLargestElement) / float64(cellCapacity)
-	if math.Remainder(stringsPerRecord, 1) > 0 {
-		stringsPerRecord = math.Floor(stringsPerRecord)
-		stringsPerRecord++
-	}
+	stringsPerRecord := math.Ceil(float64(sizeOTheLargestElement) / float64(cellCapacity))
 	return int(stringsPerRecord)
 }
 
-func initGlobalArr(size int) []string {
+func makeASlice(size int) []string {
 	arr := []string{}
 	for i := 0; i < size; i++ {
 		arr = append(arr, "")
@@ -161,7 +157,7 @@ func initGlobalArr(size int) []string {
 	return arr
 }
 
-func renderBlock(element string, capacity int) []string {
+/*func renderBlock(element string, capacity int) []string {
 	writtenData := []string{}
 	currentString := ""
 	spaceInCell := capacity
@@ -176,17 +172,13 @@ func renderBlock(element string, capacity int) []string {
 		}
 		currentString += string(element[i]) //basic option
 		spaceInCell--
-
-		if i == len(element)-1 {
-			writtenData = append(writtenData, currentString)
-		}
 	}
+	writtenData = append(writtenData, currentString)
 	return writtenData
-}
+}*/
 
-func fillStrings(elements []string, capacity int) []string {
+func makeABlock(elements []string, capacity int) []string {
 	result := []string{}
-
 	for _, item := range elements {
 		element := "| "
 		element += item
@@ -201,7 +193,7 @@ func fillStrings(elements []string, capacity int) []string {
 	return result
 }
 
-func makeOneFromTwoV2(globalArr []string, currenArr []string, emptyCell string) {
+func mergeArrays(globalArr []string, currenArr []string, emptyCell string) []string {
 	for i := 0; i < len(globalArr); i++ {
 		if i > len(currenArr)-1 {
 			globalArr[i] += emptyCell
@@ -209,10 +201,35 @@ func makeOneFromTwoV2(globalArr []string, currenArr []string, emptyCell string) 
 			globalArr[i] += currenArr[i]
 		}
 	}
+	return globalArr
 }
 
 func renderString(elements []string) {
 	for _, record := range elements {
 		fmt.Println(record)
 	}
+}
+
+func calculateCellCapacity(terminalWidth int, recordSize int) {
+	//template
+}
+
+func sliceAString(aString string, capacity int) []string {
+	numOfSubstrings := int(math.Ceil((float64(len(aString)) / float64(capacity))))
+	block := []string{}
+	startIndex := 0
+	for i := 0; i < numOfSubstrings; i++ {
+		if i == numOfSubstrings-1 {
+			block = append(block, aString[startIndex:len(aString)])
+			break
+		}
+		block = append(block, aString[startIndex:startIndex+capacity])
+		startIndex += capacity
+	}
+
+	return block
+}
+
+func calcDynamicTerminalWidth(cellCapacity int, lenOfRec int) int {
+	return cellCapacity * lenOfRec
 }
