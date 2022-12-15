@@ -157,26 +157,6 @@ func makeASlice(size int) []string {
 	return arr
 }
 
-/*func renderBlock(element string, capacity int) []string {
-	writtenData := []string{}
-	currentString := ""
-	spaceInCell := capacity
-
-	for i := 0; i < len(element); i++ {
-
-		if spaceInCell == 0 {
-			writtenData = append(writtenData, currentString)
-			currentString = ""
-			spaceInCell = capacity
-
-		}
-		currentString += string(element[i]) //basic option
-		spaceInCell--
-	}
-	writtenData = append(writtenData, currentString)
-	return writtenData
-}*/
-
 func makeABlock(elements []string, capacity int) []string {
 	result := []string{}
 	for _, item := range elements {
